@@ -53,3 +53,86 @@ def rungeKutta(a, b, y0, z0, yf, zf, n):
         z.append(curZ)
 
     return x, y, z
+
+
+def search(x, delta, f, eps):
+    x0 = x
+    x1 = x0 + delta
+    diff0 = f(x0)
+    diff1 = f(x1)
+
+    if diff1 > diff0:
+        delta *= -1
+
+    while diff0 > eps:
+        x1 = x0 + delta
+        diff1 = f(x1)
+
+        if diff1 < diff0:
+            x0 = x1
+            diff0 = diff1
+        else:
+            x0 = x0 - delta
+            delta /= 10
+            diff0 = f(x0)
+
+    return x0
+
+
+def shootingMethodZ(a, b, z0, z1, zf, n, eps):
+    def yf(x, y, z):
+        return z
+
+    def searchFunc(y):
+        newX, newY, newZ = rungeKutta(a, b, y, z0, yf, zf, n)
+        return abs(z1 - newZ[-1])
+
+    res = search(0, 10, searchFunc, eps)
+    resX, resY, resZ = rungeKutta(a, b, res, z0, yf, zf, n)
+    return resX, resY, res
+
+
+def shootingMethodY(a, b, y0, y1, zf, n, eps):
+    def yf(x, y, z):
+        return z
+
+    def searchFunc(z):
+        newX, newY, newZ = rungeKutta(a, b, y0, z, yf, zf, n)
+        return abs(y1 - newY[-1])
+
+    res = search(0, 10, searchFunc, eps)
+    resX, resY, resZ = rungeKutta(a, b, y0, res, yf, zf, n)
+
+    return resX, resY, res
+
+
+def secantMethodZ(a, b, z0, z1, zf, n):
+    def yf(x, y, z):
+        return z
+
+    y0 = -10
+    yDelta = 10
+
+    newX0, newY0, newZ0 = rungeKutta(a, b, y0, z0, yf, zf, n)
+    y1 = y0 + yDelta
+    newX1, newY1, newZ1 = rungeKutta(a, b, y1, z0, yf, zf, n)
+
+    yRes = y0 + (y1 - y0) * (z1 - newZ0[-1]) / (newZ1[-1] - newZ0[-1])
+    resX0, resY0, resZ0 = rungeKutta(a, b, yRes, z0, yf, zf, n)
+    return resX0, resY0, yRes
+
+
+def secantMethodY(a, b, y0, y1, zf, n):
+    def yf(x, y, z):
+        return z
+
+    z0 = -10
+    zDelta = 10
+
+    newX0, newY0, newZ0 = rungeKutta(a, b, y0, z0, yf, zf, n)
+    z1 = z0 + zDelta
+    newX1, newY1, newZ1 = rungeKutta(a, b, y0, z1, yf, zf, n)
+
+    zRes = z0 + (z1 - z0) * (y1 - newY0[-1]) / (newY1[-1] - newY0[-1])
+    resX0, resY0, resZ0 = rungeKutta(a, b, y0, zRes, yf, zf, n)
+    return resX0, resY0, zRes
