@@ -1,3 +1,7 @@
+import itertools
+from functools import reduce
+
+
 def lagrange(x, xArr, yArr):
     res = 0
     for i in range(len(xArr)):
@@ -7,6 +11,26 @@ def lagrange(x, xArr, yArr):
                 mult *= (x - xArr[j]) / (xArr[i] - xArr[j])
         res += yArr[i] * mult
     return res
+
+
+def lagrangeDerivative(x, xArr, yArr):
+    r = 0
+
+    for i in range(0, len(xArr)):
+        a = 0
+        b = 1
+        w = []
+
+        for j in range(0, len(xArr)):
+            if i != j:
+                b *= xArr[i] - xArr[j]
+                w.append(xArr[j])
+
+        for item in itertools.combinations(w, len(xArr) - 2):
+            a += reduce(lambda cur, prev: cur * prev, [x - it for it in item])
+
+        r += yArr[i] * a / b
+    return r
 
 
 def omegaN(x, xArr):

@@ -6,17 +6,18 @@ import analysis.interpolate as interpol
 
 def f(x):
     return x * x + math.log(x) - 4
-    # return x**3 - math.sin(x)
+
+
+def firstDer(x):
+    return 2 * x + 1 / x
 
 
 def secondDer(x):
     return 2 - 1 / (x ** 2)
-    # return 6 * x + math.sin(x)
 
 
 def thirdDer(x):
     return 2.0 / (x ** 3)
-    # return math.cos(x) + 6
 
 
 def elevenDer(x):
@@ -31,8 +32,8 @@ def fact(n):
 
 
 class InterpolationTest(unittest.TestCase):
-    def prepare_test(self, a, b, xStar):
-        xArr, yArr = util.createPlot(f, a, b, 10)
+    def prepare_test(self, a, b, xStar, n):
+        xArr, yArr = util.createPlot(f, a, b, n)
         idx = interpol.getClosestIdx(xArr, xStar)
         return idx, xArr, yArr
 
@@ -40,7 +41,7 @@ class InterpolationTest(unittest.TestCase):
         a = 1.45
         b = 1.95
         xStar = 1.52
-        idx, xArr, yArr = self.prepare_test(a, b, xStar)
+        idx, xArr, yArr = self.prepare_test(a, b, xStar, 10)
 
         lg1 = interpol.lagrange(xStar, [xArr[idx], xArr[idx + 1]], [yArr[idx], yArr[idx + 1]])
         minR1 = secondDer(xArr[idx]) * interpol.omegaN(xStar, [xArr[idx], xArr[idx + 1]]) / 2
@@ -55,7 +56,7 @@ class InterpolationTest(unittest.TestCase):
         b = 1.95
         xStar = 1.52
 
-        idx, xArr, yArr = self.prepare_test(a, b, xStar)
+        idx, xArr, yArr = self.prepare_test(a, b, xStar, 10)
 
         localX = [xArr[idx + i] for i in range(-1, 2)]
         localY = [yArr[idx + i] for i in range(-1, 2)]
@@ -72,7 +73,7 @@ class InterpolationTest(unittest.TestCase):
         b = 2
         xStar = 1.52
 
-        idx, xArr, yArr = self.prepare_test(a, b, xStar)
+        idx, xArr, yArr = self.prepare_test(a, b, xStar, 10)
         h = (b - a) / 10
 
         diffMatrix = interpol.dividedDiffs(yArr)
@@ -89,7 +90,7 @@ class InterpolationTest(unittest.TestCase):
         b = 2
         xStar = 1.97
 
-        idx, xArr, yArr = self.prepare_test(a, b, xStar)
+        idx, xArr, yArr = self.prepare_test(a, b, xStar, 10)
         h = (b - a) / 10
 
         diffMatrix = interpol.dividedDiffs(yArr)
@@ -106,7 +107,7 @@ class InterpolationTest(unittest.TestCase):
         b = 2
         xStar = 1.77
 
-        idx, xArr, yArr = self.prepare_test(a, b, xStar)
+        idx, xArr, yArr = self.prepare_test(a, b, xStar, 10)
         h = (b - a) / 10
 
         diffMatrix = interpol.dividedDiffs(yArr)
@@ -117,6 +118,15 @@ class InterpolationTest(unittest.TestCase):
         gss1R = abs(f(xStar) - gss1)
         self.assertGreaterEqual(gss1R, abs(gss1Rmin))
         self.assertGreaterEqual(abs(gss1Rmax), gss1R)
+
+    def test_lagrange_der(self):
+        a = 1.5
+        b = 1.5 + 0.05 * 3
+        xm = 1.6
+
+        idx, xArr, yArr = self.prepare_test(a, b, xm, 3)
+        r = abs(interpol.lagrangeDerivative(xm, xArr, yArr) - firstDer(xm))
+        self.assertGreater(1e-4, r)
 
 
 if __name__ == '__main__':
