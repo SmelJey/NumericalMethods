@@ -2,7 +2,10 @@ import random
 import math
 
 
-def integrate(method, f, a, b, startN, eps):
+def integrate(f, a, b, startN, eps, method=None):
+    if method is None:
+        method = chebyshev3
+
     res = method(f, a, b, startN)
     startN *= 2
     newRes = method(f, a, b, startN)
@@ -34,7 +37,7 @@ def newtonCotes3(f, a, b, n):
         m = (b + a) / 2
         return newtonCotes3(f, a, m, n / 2) + newtonCotes3(f, m, b, n / 2)
 
-    c = [1/8, 3/8, 3/8, 1/8]
+    c = [1 / 8, 3 / 8, 3 / 8, 1 / 8]
     curX = a
     res = 0
     h = (b - a) / 3
@@ -51,7 +54,7 @@ def chebyshev3(f, a, b, n):
         m = (b + a) / 2
         return chebyshev3(f, a, m, n / 2) + chebyshev3(f, m, b, n / 2)
 
-    t = [-math.sqrt(1/2), 0, math.sqrt(1/2)]
+    t = [-math.sqrt(1 / 2), 0, math.sqrt(1 / 2)]
     res = 0
     for i in range(3):
         curX = (b + a) / 2 + (b - a) / 2 * t[i]
