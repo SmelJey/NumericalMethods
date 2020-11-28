@@ -43,6 +43,35 @@ class Ode2Test(unittest.TestCase):
         x, y, y0 = ode.secantMethodY(0, 1, 2, 2, zfTest2, 1000)
         self.assertAlmostEqual(y0, 0.8666736566040598, delta=1e-12)
 
+    def test_finite_diff_method1(self):
+        def p(x):
+            return math.sinh(x)
+
+        def q(x):
+            return x
+
+        def f(x):
+            return 1
+
+        x, y = ode.finiteDiffMethod(0, 1, 100, p, q, f, [0, 0], [1, 1], [2, 2])
+        self.assertAlmostEqual(-5.344899486679, y[0], delta=1e-2)
+
+    def test_finite_diff_method2(self):
+        def p(x):
+            return math.sinh(x)
+
+        def q(x):
+            return x
+
+        def f(x):
+            return 1
+
+        x, y = ode.finiteDiffMethod(0, 1, 1000, p, q, f, [1, 1], [0, 0], [2, 2])
+        testX, testY, y0 = ode.secantMethodY(0, 1, 2, 2, zfTest2, 1000)
+
+        for y1, y2 in zip(y, testY):
+            self.assertAlmostEqual(y1, y2, delta=1e-3)
+
 
 if __name__ == '__main__':
     unittest.main()

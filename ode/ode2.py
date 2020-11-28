@@ -1,3 +1,6 @@
+import algebra.matrix as matrix
+
+
 def euler(a, b, y0, z0, yf, zf, n):
     h = (b - a) / n
     curX = a
@@ -136,3 +139,34 @@ def secantMethodY(a, b, y0, y1, zf, n):
     zRes = z0 + (z1 - z0) * (y1 - newY0[-1]) / (newY1[-1] - newY0[-1])
     resX0, resY0, resZ0 = rungeKutta(a, b, y0, zRes, yf, zf, n)
     return resX0, resY0, zRes
+
+
+def finiteDiffMethod(a, b, n, p, q, oldF, alpha, beta, gamma):
+    def f(x):
+        return -oldF(x)
+
+    h = (b - a) / n
+    x = [a + i * h for i in range(n + 1)]
+
+    denom = (1 + h/2 * p(x[1]))
+    aDiag = [2 * alpha[0] * h - 3 * beta[0] + beta[0] * (1 - h/2 * p(x[1])) / denom]
+    bDiag = [4 * beta[0] + beta[0] * (q(x[1]) * h**2 - 2) / denom]
+    cDiag = [0]
+    fVec = [2 * gamma[0] * h + beta[0] * h**2 * f(x[1]) / denom]
+
+    for i in range(1, n):
+        aDiag.append(q(x[i]) * h**2 - 2)
+        bDiag.append(1 + h/2 * p(x[i]))
+        cDiag.append(1 - h/2 * p(x[i]))
+        fVec.append(h * h * f(x[i]))
+
+    denom = 1 - h/2 * p(x[n-1])
+    aDiag.append(2 * alpha[1] * h + 3 * beta[1] - (beta[1] * (1 + h/2 * p(x[n-1]))) / denom)
+    bDiag.append(0)
+    cDiag.append(beta[1] * (2 - q(x[n-1]) * h**2) / denom - 4 * beta[1])
+    fVec.append(2 * gamma[1] * h - (beta[1] * h**2 * f(x[n-1])) / denom)
+
+    res = matrix.tridiagonalMatrix(aDiag, bDiag, cDiag, fVec)
+    return x, res
+
+
