@@ -2,6 +2,7 @@ import unittest
 import math
 import util
 import ode.ode2 as ode
+import matplotlib.pyplot as plt
 
 
 def zfTest(x, y, z):
@@ -51,26 +52,50 @@ class Ode2Test(unittest.TestCase):
             return x
 
         def f(x):
-            return 1
+            return -1
 
-        x, y = ode.finiteDiffMethod(0, 1, 100, p, q, f, [0, 0], [1, 1], [2, 2])
-        self.assertAlmostEqual(-5.344899486679, y[0], delta=1e-2)
+        # y'' =  -sinh(x)y' - xy - 1, y'(0) = 2, y'(1) = 2
+        x, y = ode.finiteDiffMethod2(0, 1, 100, p, q, f, [0, 0], [1, 1], [2, 2])
+        testX, testY, y0 = ode.secantMethodZ(0, 1, 2, 2, zfTest2, 100)
+        for y1, y2 in zip(y, testY):
+            self.assertAlmostEqual(y1, y2, delta=1e-2)
 
     def test_finite_diff_method2(self):
         def p(x):
             return math.sinh(x)
-
         def q(x):
             return x
-
         def f(x):
-            return 1
+            return -1
 
-        x, y = ode.finiteDiffMethod(0, 1, 1000, p, q, f, [1, 1], [0, 0], [2, 2])
+        # y'' =  -sinh(x)y' - xy - 1, y(0) = 2, y(1) = 2
+        x, y = ode.finiteDiffMethod2(0, 1, 1000, p, q, f, [1, 1], [0, 0], [2, 2])
         testX, testY, y0 = ode.secantMethodY(0, 1, 2, 2, zfTest2, 1000)
 
         for y1, y2 in zip(y, testY):
             self.assertAlmostEqual(y1, y2, delta=1e-3)
+
+    def test_finite_diff_method3(self):
+        # №753 fillipov e^x - 2
+        def sol(x):
+            return math.exp(x) - 2
+
+        # y'' - y' = 0, y(0) = -1, y'(1) - y(1) = 2
+        x, y = ode.finiteDiffMethod2(0, 1, 10000, lambda x: -1, lambda x: 0, lambda x: 0, [1, -1], [0, 1], [-1, 2])
+        exactSol = [sol(xi) for xi in x]
+        for y1, y2 in zip(y, exactSol):
+            self.assertAlmostEqual(y1, y2, delta=1e-4)
+
+    def test_finite_diff_method4(self):
+        # 751 fillipov
+        def sol(x):
+            return math.sinh(x) / math.sinh(1) - 2 * x
+
+        # y'' - y = 2x, y(0) = 0, y(1) = -1
+        x, y = ode.finiteDiffMethod2(0, 1, 10000, lambda x: 0, lambda x: -1, lambda x: 2 * x, [1, 1], [0, 0], [0, -1])
+        exactSol = [sol(xi) for xi in x]
+        for y1, y2 in zip(y, exactSol):
+            self.assertAlmostEqual(y1, y2, delta=1e-4)
 
 
 if __name__ == '__main__':
