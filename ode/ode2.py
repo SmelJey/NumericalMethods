@@ -168,10 +168,7 @@ def finiteDiffMethod1(a, b, n, p, q, oldF, alpha, beta, gamma):
     return x, res
 
 
-def finiteDiffMethod2(a, b, n, p, q, oldF, alpha, beta, gamma):
-    def f(x):
-        return oldF(x)
-
+def finiteDiffMethod2(a, b, n, p, q, f, alpha, beta, gamma):
     h = (b - a) / n
     x = [a + i * h for i in range(n + 1)]
     denom = (1 + h / 2 * p(x[1]))

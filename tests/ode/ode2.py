@@ -97,6 +97,30 @@ class Ode2Test(unittest.TestCase):
         for y1, y2 in zip(y, exactSol):
             self.assertAlmostEqual(y1, y2, delta=1e-4)
 
+    def test_finite_diff_method_3rd_condition(self):
+        # 702 fillipov
+        # solution for desmos (tex)
+        # \left(\frac{x}{2}+1\right)\ln x+\frac{3}{2}+C_{1}\left(x+2\right)+\frac{1}{x}C_{2}
+        # C2 = 0, C1 = -1
+        def sol(x):
+            return (x / 2 + 1) * math.log(x) - x - 1/2
+
+        # equation
+        # (x+1)xy'' + (x+2)y' - y = x + 1/x
+
+        # f(1) = - 3 / 2
+        # f(e) = -e/2 + 1/2
+        # f'(1) = 1/2
+        # f'(e) = 1/e
+
+        # boundary problem
+        # f(1) - f'(1) = -2
+        # f(e) + f'(e) = 1/e - e/2 + 1/2
+        x, y = ode.finiteDiffMethod2(1, math.e, 100, lambda x: (x + 2) / (x ** 2 + x), lambda x: -1 / (x ** 2 + x), lambda x: (x + 1 / x) / (x ** 2 + x), [1, 1], [-1, 1], [-2, 1 / math.e - math.e / 2 + 1/2])
+        exactSol = [sol(xi) for xi in x]
+        for y1, y2 in zip(y, exactSol):
+            self.assertAlmostEqual(y1, y2, delta=1e-4)
+
 
 if __name__ == '__main__':
     unittest.main()
