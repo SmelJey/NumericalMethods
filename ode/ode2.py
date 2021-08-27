@@ -161,7 +161,6 @@ def finiteDiffMethod1(a, b, n, p, q, oldF, alpha, beta, gamma):
     aDiag.append(alpha[1] * h + beta[1])
     bDiag.append(0)
     cDiag.append(-beta[1])
-
     fVec.append(gamma[1] * h)
 
     res = matrix.tridiagonalMatrix(aDiag, bDiag, cDiag, fVec)
